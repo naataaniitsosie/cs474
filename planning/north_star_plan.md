@@ -86,7 +86,46 @@ Your research instinct—**design the eval before you trust the model**—is app
 
 ---
 
-## 6. Suggested phased roadmap (for time-bucket discipline)
+## 6. Compute strategy (where to train)
+
+**Goal:** Spend modeling hours on **debugging and analysis**, not fighting unreliable runtimes. Document in the report **where** each major run happened (approximate GPU / `torch.device`, batch size, max sequence lengths)—that matters more than claiming a specific chip brand.
+
+### Apple Silicon (e.g. M4, local)
+
+**Pros:** No session timeouts; ideal for **pipeline debugging**, **overfit-one-batch** tests, and **short** epochs. PyTorch **`mps`** backend when available (not identical to CUDA; occasional op gaps—fall back to CPU for a layer if needed).
+
+**Cons:** Long **full-dataset** runs may be **slower wall-clock** than a datacenter NVIDIA GPU at the same effective batch size.
+
+**Best for:** Scratch transformer **tiny** configs, integration tests, tokenizer/data plumbing.
+
+### Google Colab (free tier)
+
+**Pros:** Often an **NVIDIA T4** (~16 GB)—enough for **T5-small** finetuning and modest seq2seq batches.
+
+**Cons:** **Disconnects**, variable GPU assignment, painful for unattended multi-hour jobs.
+
+**Best for:** Quick **T5 baseline** experiments when you do not need a long uninterrupted run.
+
+### Colab Pro / Pro+ and similar (paid)
+
+**Pros:** Longer runtimes; higher chance of **faster GPUs** (e.g. **L4**, **A100**). **A100** class: best **throughput** and headroom for **large batches or long sequences**.
+
+**Cons:** Environment resets between sessions; not guaranteed which GPU each day.
+
+**Best for:** **Long** training jobs (full train split, scratch **small** config) when you need NVIDIA **CUDA** speed and stability.
+
+### Baseline vs scratch (practical split)
+
+| Workload | Typical target |
+|----------|----------------|
+| **T5-small finetune** (HF baseline) | **T4 is usually enough**; A100 is faster, not strictly required. |
+| **Scratch encoder–decoder** | Start **tiny** on laptop; move **small** / full runs to **Colab Pro + best GPU available** if wall-clock matters. |
+
+**Rule of thumb:** Implement and validate on **local M4 first**; schedule **heavy** remote jobs once the loop is correct.
+
+---
+
+## 7. Suggested phased roadmap (for time-bucket discipline)
 
 Rough order; adjust dates as needed. **Keep a running log** so hours land in the right buckets.
 
@@ -99,7 +138,7 @@ Rough order; adjust dates as needed. **Keep a running log** so hours land in the
 
 ---
 
-## 7. What “success” looks like for the rubric (not only leaderboard numbers)
+## 8. What “success” looks like for the rubric (not only leaderboard numbers)
 
 - **Time log** shows **≥ 20 hours** of real modeling/experimentation work and reads like a serious project.
 - **Report** answers the course’s checklist (dataset provenance, supervised vs unsupervised, splits, parameter count, optimizer, pretrained weights or not, metrics, overfitting discussion).
@@ -108,13 +147,13 @@ Rough order; adjust dates as needed. **Keep a running log** so hours land in the
 
 ---
 
-## 8. Open decisions to resolve next (before heavy coding)
+## 9. Open decisions to resolve next (before heavy coding)
 
 - [x] **BriefMe `arg_summ` column mapping** — encoder input: `text`; decoder target: `reference`. Load via **streaming** in [`src/briefme/data.py`](../src/briefme/data.py) (non-streaming Hub cache can fail on `held_out`). EDA: [`notebooks/01_briefme_eda.ipynb`](../notebooks/01_briefme_eda.ipynb); constants: [`src/briefme/schema.py`](../src/briefme/schema.py).
 - [x] **Encoder–decoder** (not decoder-only)—locked; rationale in §4.
-- [ ] Final metric suite (2–4 automated metrics max, each with a stated purpose).
+- [x] Final metric suite (2–4 automated metrics max, each with a stated purpose).
 - [ ] Human evaluation **N** and rubric (feasible given deadline).
-- [ ] Whether a small **HF finetuned baseline** is in scope or a distraction from scratch work.
+- [x] **HF baseline** — **T5-small finetune** as reference only (see encoder build plan); **scratch** transformer remains the centerpiece.
 
 ---
 

@@ -1,5 +1,6 @@
 # Convenience mirror of pyproject.toml runtime deps (optional if you use conda env).
 # Prefer: conda env create -f environment.yml   OR   pip install -e ".[dev]"
+accelerate>=0.30.0
 datasets>=3.0.0
 huggingface_hub>=0.24.0
 httpx>=0.27.0
@@ -7,3 +8,8 @@ python-dotenv>=1.0.0
 jupyter>=1.0.0
 ipykernel>=6.0.0
 matplotlib>=3.8.0
+pytest>=8.0.0
+rouge-score>=0.1.2
+sacrebleu>=2.4.0
+torch>=2.2.0
+transformers>=4.40.0

@@ -50,6 +50,22 @@ pip install -e ".[dev]"
 
 [`requirements.txt`](requirements.txt) mirrors core deps if you prefer a flat list instead of Conda.
 
+### Training / compute
+
+PyTorch training (scratch transformer + T5 baseline) uses **`torch`**, **`transformers`**, and **`accelerate`** (see [`pyproject.toml`](pyproject.toml)). Use **CUDA** on Linux/Colab when possible; on **Apple Silicon**, PyTorch **`mps`** may accelerate parts of the stack (some ops fall back to CPU).
+
+Where to run long jobs (local M4 vs Colab T4 vs A100, etc.) is documented in **[`planning/north_star_plan.md`](planning/north_star_plan.md) §6 — Compute strategy**. In your report, note **device**, **approximate GPU**, **batch size**, and **max sequence lengths** for reproducibility.
+
+### Running tests
+
+Install dev extras (`pip install -e ".[dev]"`) so **pytest** is available. From the repo root:
+
+```bash
+python -m pytest
+```
+
+Tests live under [`tests/`](tests/). Options are configured in [`pyproject.toml`](pyproject.toml) (`[tool.pytest.ini_options]` → `testpaths = ["tests"]`). For verbose output: `python -m pytest -v`; one file: `python -m pytest tests/test_metrics.py`.
+
 ## BriefMe loading note
 
 Non-streaming `datasets.load_dataset(..., streaming=False)` can fail while building cache (upstream schema issue on the `held_out` split). Use **`briefme.data`** helpers (`streaming=True`) as in the EDA notebook.
