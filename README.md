@@ -1,0 +1,55 @@
+# CS474 — BriefMe seq2seq (final project)
+
+Encoder–decoder training for legal brief passages → section headings using the [BriefMe](https://huggingface.co/datasets/jw4202/BriefMe) `arg_summ` task. See [`planning/north_star_plan.md`](planning/north_star_plan.md) for scope and grading constraints.
+
+## Project layout
+
+| Path | Purpose |
+|------|---------|
+| [`src/briefme/`](src/briefme/) | Installable Python package: dataset loading, column mapping (`text` → `reference`). |
+| [`notebooks/`](notebooks/) | EDA and experiments (e.g. `01_briefme_eda.ipynb`). |
+| [`planning/`](planning/) | Course specs and planning docs. |
+
+**Why `src/briefme` and not `src/dataset/briefme`?**  
+Putting the package directly under `src/` is the usual pattern when you have one main library to install. An extra `dataset/` folder only pays off if you split multiple installable packages (for example `src/models`, `src/evaluation`). Here a single package `briefme` keeps imports short (`import briefme`) and tooling simple.
+
+## Environment (Conda)
+
+From the repository root (the folder that contains `pyproject.toml`):
+
+```bash
+conda env create -f environment.yml
+conda activate cs474
+pip install -e ".[dev]"
+```
+
+This installs runtime + dev deps from [`pyproject.toml`](pyproject.toml) and installs this repo in **editable** mode so `import briefme` works everywhere (including Jupyter).
+
+Register the kernel (optional):
+
+```bash
+python -m ipykernel install --user --name cs474 --display-name "Python (cs474)"
+```
+
+Then choose **Python (cs474)** when opening notebooks.
+
+### Hugging Face token
+
+1. Copy `.env.example` to `.env`.
+2. Set `HUGGINGFACE_HUB_TOKEN` ([create a token](https://huggingface.co/settings/tokens)).
+
+Without a token, some public Hub assets still download; gated datasets require the token.
+
+### Pip-only alternative
+
+```bash
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -e ".[dev]"
+```
+
+[`requirements.txt`](requirements.txt) mirrors core deps if you prefer a flat list instead of Conda.
+
+## BriefMe loading note
+
+Non-streaming `datasets.load_dataset(..., streaming=False)` can fail while building cache (upstream schema issue on the `held_out` split). Use **`briefme.data`** helpers (`streaming=True`) as in the EDA notebook.

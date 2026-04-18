@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cs474"
+version = "0.1.0"
+description = "CS474 final project — BriefMe legal seq2seq"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "datasets>=3.0.0",
+    "huggingface_hub>=0.24.0",
+    "python-dotenv>=1.0.0",
+    "matplotlib>=3.8.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "jupyter>=1.0.0",
+    "ipykernel>=6.0.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]

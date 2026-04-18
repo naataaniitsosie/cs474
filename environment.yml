@@ -1,0 +1,12 @@
+# Usage (from repo root — directory that contains pyproject.toml):
+#   conda env create -f environment.yml
+#   conda activate cs474
+#   pip install -e ".[dev]"
+#
+# The editable install registers the `briefme` package from src/briefme for Jupyter and CLI.
+name: cs474
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - pip

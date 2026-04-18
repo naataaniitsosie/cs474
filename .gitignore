@@ -1,2 +1,39 @@
 .vscode/
+
 .env
+.env.*
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Packaging / editable install metadata (egg-info appears after `pip install -e .`)
+*.egg-info/
+.eggs/
+dist/
+build/
+downloads/
+eggs/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg
+.installed.cfg
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Tools (harmless if unused)
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/

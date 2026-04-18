@@ -110,7 +110,7 @@ Rough order; adjust dates as needed. **Keep a running log** so hours land in the
 
 ## 8. Open decisions to resolve next (before heavy coding)
 
-- [ ] Exact BriefMe subset and column mapping (input text vs target heading).
+- [x] **BriefMe `arg_summ` column mapping** — encoder input: `text`; decoder target: `reference`. Load via **streaming** in [`src/briefme/data.py`](../src/briefme/data.py) (non-streaming Hub cache can fail on `held_out`). EDA: [`notebooks/01_briefme_eda.ipynb`](../notebooks/01_briefme_eda.ipynb); constants: [`src/briefme/schema.py`](../src/briefme/schema.py).
 - [x] **Encoder–decoder** (not decoder-only)—locked; rationale in §4.
 - [ ] Final metric suite (2–4 automated metrics max, each with a stated purpose).
 - [ ] Human evaluation **N** and rubric (feasible given deadline).
