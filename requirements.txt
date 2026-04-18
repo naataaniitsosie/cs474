@@ -2,6 +2,7 @@
 # Prefer: conda env create -f environment.yml   OR   pip install -e ".[dev]"
 datasets>=3.0.0
 huggingface_hub>=0.24.0
+httpx>=0.27.0
 python-dotenv>=1.0.0
 jupyter>=1.0.0
 ipykernel>=6.0.0
