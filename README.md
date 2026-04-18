@@ -6,7 +6,8 @@ Encoder–decoder training for legal brief passages → section headings using t
 
 | Path | Purpose |
 |------|---------|
-| [`src/briefme/`](src/briefme/) | Installable Python package: dataset loading, column mapping (`text` → `reference`). |
+| [`src/briefme/`](src/briefme/) | Dataset + metrics + judge helpers (`text` → `reference`). |
+| [`src/transformer/`](src/transformer/) | Scratch encoder–decoder model code (Phase 1+: config, then attention/stack). Separate from **`transformers`** (Hugging Face). Import: `from transformer import ScratchTransformerConfig`. |
 | [`notebooks/`](notebooks/) | EDA and experiments (e.g. `01_briefme_eda.ipynb`). |
 | [`planning/`](planning/) | Course specs and planning docs. |
 

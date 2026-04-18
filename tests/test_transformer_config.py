@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from briefme.transformer import HF_T5_BASELINE_MODEL_ID, ScratchTransformerConfig
+from transformer import HF_T5_BASELINE_MODEL_ID, ScratchTransformerConfig
 
 
 def test_hf_t5_default_id_is_small_variant() -> None:

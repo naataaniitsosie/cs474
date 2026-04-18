@@ -17,8 +17,6 @@ from briefme.schema import (
     TARGET_COLUMN,
     to_seq2seq_example,
 )
-from briefme.transformer import HF_T5_BASELINE_MODEL_ID, ScratchTransformerConfig
-
 __all__ = [
     "CONFIG_NAME",
     "DATASET_NAME",
@@ -36,6 +34,4 @@ __all__ = [
     "normalize",
     "score_pair",
     "token_f1_one",
-    "HF_T5_BASELINE_MODEL_ID",
-    "ScratchTransformerConfig",
 ]
