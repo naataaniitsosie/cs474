@@ -7,7 +7,7 @@ Encoder–decoder training for legal brief passages → section headings using t
 | Path | Purpose |
 |------|---------|
 | [`src/briefme/`](src/briefme/) | Dataset + metrics + judge helpers (`text` → `reference`). |
-| [`src/transformer/`](src/transformer/) | Scratch encoder–decoder model code (Phase 1+: config, then attention/stack). Separate from **`transformers`** (Hugging Face). Import: `from transformer import ScratchTransformerConfig`. |
+| [`src/transformer/`](src/transformer/) | Scratch model: `config.py` (Phase 1), `attention.py` / `masking.py` / `layers.py` (Phase 2: MHA, encoder/decoder blocks). Not the Hugging Face **`transformers`** package. Layer modules import lazily from `transformer` so `import torch` is not required to use `ScratchTransformerConfig` only. |
 | [`notebooks/`](notebooks/) | EDA and experiments (e.g. `01_briefme_eda.ipynb`). |
 | [`planning/`](planning/) | Course specs and planning docs. |
 
