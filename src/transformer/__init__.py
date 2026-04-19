@@ -20,6 +20,9 @@ __all__ = [
     "EncoderLayer",
     "DecoderLayer",
     "additive_causal_mask",
+    "SinusoidalPositionalEncoding",
+    "ScratchSeq2SeqTransformer",
+    "seq2seq_cross_entropy_loss",
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
@@ -29,6 +32,9 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "EncoderLayer": ("transformer.layers", "EncoderLayer"),
     "DecoderLayer": ("transformer.layers", "DecoderLayer"),
     "additive_causal_mask": ("transformer.masking", "additive_causal_mask"),
+    "SinusoidalPositionalEncoding": ("transformer.positional", "SinusoidalPositionalEncoding"),
+    "ScratchSeq2SeqTransformer": ("transformer.model", "ScratchSeq2SeqTransformer"),
+    "seq2seq_cross_entropy_loss": ("transformer.model", "seq2seq_cross_entropy_loss"),
 }
 
 
@@ -43,3 +49,5 @@ if TYPE_CHECKING:
     from transformer.attention import MultiHeadAttention, scaled_dot_product_attention
     from transformer.layers import DecoderLayer, EncoderLayer, FeedForward
     from transformer.masking import additive_causal_mask
+    from transformer.model import ScratchSeq2SeqTransformer, seq2seq_cross_entropy_loss
+    from transformer.positional import SinusoidalPositionalEncoding

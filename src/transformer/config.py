@@ -2,6 +2,17 @@
 
 ``vocab_size`` is filled once a tokenizer is chosen. The T5 baseline default id is
 for the separate Hugging Face finetuning script (reference model only).
+
+**Presets (scratch only — not comparable to industrial “production” Transformer serving):**
+
+- **tiny** — Fast smoke tests and CPU/MPS debugging; intentionally small capacity.
+- **small** — Sensible default for **course-grade** BriefMe experiments on a modest GPU.
+- **medium** — Heavier scratch run when you want more capacity than ``small`` and have GPU
+  time; still far smaller than mainstream pretrained seq2seq (e.g. full T5-base).
+
+“Production-grade” for real products usually means pretrained models, specialized infra,
+monitoring, and budgets beyond typical student scratch builds; use **tiny/small/medium**
+here as **engineering presets**, not production SLAs.
 """
 
 from __future__ import annotations
@@ -66,13 +77,28 @@ class ScratchTransformerConfig:
 
     @classmethod
     def small(cls) -> ScratchTransformerConfig:
-        """Heavier config for real BriefMe training once the loop is stable."""
+        """Primary preset for supervised BriefMe runs (good balance vs compute)."""
         return cls(
             d_model=256,
             n_heads=8,
             n_encoder_layers=4,
             n_decoder_layers=4,
             d_ff=1024,
+            dropout=0.1,
+            max_src_len=512,
+            max_tgt_len=128,
+            vocab_size=None,
+        )
+
+    @classmethod
+    def medium(cls) -> ScratchTransformerConfig:
+        """Larger scratch setup for strong GPU / long runs — optional ablation preset."""
+        return cls(
+            d_model=384,
+            n_heads=8,
+            n_encoder_layers=6,
+            n_decoder_layers=6,
+            d_ff=1536,
             dropout=0.1,
             max_src_len=512,
             max_tgt_len=128,

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 720" width="920" height="720" role="img" aria-labelledby="title desc">
+  <title id="title">ScratchSeq2SeqTransformer: encoder and decoder stacks</title>
+  <desc id="desc">Data flow from source and target token IDs through encoder memory and decoder layers to vocabulary logits.</desc>
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#334155"/>
+    </marker>
+    <style>
+      .title { font: 700 20px ui-sans-serif, system-ui, sans-serif; fill: #0f172a; }
+      .subtitle { font: 600 13px ui-sans-serif, system-ui, sans-serif; fill: #475569; }
+      .lbl { font: 600 14px ui-sans-serif, system-ui, sans-serif; fill: #1e293b; }
+      .txt { font: 13px ui-sans-serif, system-ui, sans-serif; fill: #334155; }
+      .note { font: 12px ui-sans-serif, system-ui, sans-serif; fill: #64748b; }
+      .mono { font: 12px ui-monospace, monospace; fill: #0f172a; }
+      .box-enc { fill: #e0f2fe; stroke: #0369a1; stroke-width: 2; rx: 8; }
+      .box-dec { fill: #fff7ed; stroke: #c2410c; stroke-width: 2; rx: 8; }
+      .box-io { fill: #f8fafc; stroke: #64748b; stroke-width: 1.5; rx: 6; }
+      .line-flow { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .line-bridge { stroke: #0369a1; stroke-width: 2.5; fill: none; marker-end: url(#arrowhead); stroke-dasharray: 6 4; }
+    </style>
+  </defs>
+
+  <text x="460" y="36" text-anchor="middle" class="title">ScratchSeq2SeqTransformer</text>
+  <text x="460" y="58" text-anchor="middle" class="subtitle">Encoder-decoder stack (Pre-LN). Matches src/transformer/model.py and layers.py</text>
+
+  <!-- ========== ENCODER COLUMN ========== -->
+  <text x="230" y="92" text-anchor="middle" class="lbl">Encoder stack</text>
+
+  <rect x="70" y="105" width="320" height="48" class="box-io"/>
+  <text x="230" y="128" text-anchor="middle" class="txt">Source token IDs</text>
+  <text x="230" y="144" text-anchor="middle" class="mono">src: (batch, src_len)</text>
+
+  <line x1="230" y1="153" x2="230" y2="178" class="line-flow"/>
+
+  <rect x="70" y="178" width="320" height="56" class="box-io"/>
+  <text x="230" y="200" text-anchor="middle" class="txt">src_embed * sqrt(d_model) + sinusoidal PE + dropout</text>
+  <text x="230" y="218" text-anchor="middle" class="note">mask: src_key_padding_mask (pad positions ignored)</text>
+
+  <line x1="230" y1="234" x2="230" y2="258" class="line-flow"/>
+
+  <rect x="55" y="258" width="350" height="200" class="box-enc"/>
+  <text x="230" y="282" text-anchor="middle" class="lbl">EncoderLayer x n_encoder_layers</text>
+  <text x="70" y="304" class="txt">- Pre-LN, Multi-head self-attention (Q, K, V from same x)</text>
+  <text x="82" y="322" class="note">  full sequence, bidirectional (no causal mask)</text>
+  <text x="82" y="338" class="note">  key_padding_mask hides padded source keys</text>
+  <text x="70" y="360" class="txt">- residual + dropout</text>
+  <text x="70" y="382" class="txt">- Pre-LN, FFN (GELU), residual + dropout</text>
+  <line x1="70" y1="398" x2="405" y2="398" stroke="#bae6fd" stroke-width="1"/>
+  <text x="70" y="420" class="txt">Repeat for each layer; output is contextualized source states.</text>
+  <text x="70" y="442" class="mono">memory: (batch, src_len, d_model)</text>
+
+  <line x1="230" y1="458" x2="230" y2="488" class="line-flow"/>
+
+  <rect x="70" y="488" width="320" height="44" class="box-io"/>
+  <text x="230" y="508" text-anchor="middle" class="txt">Encoder output; decoder reads it as</text>
+  <text x="230" y="524" text-anchor="middle" class="mono">memory</text>
+
+  <!-- ========== DECODER COLUMN ========== -->
+  <text x="690" y="92" text-anchor="middle" class="lbl">Decoder stack</text>
+
+  <rect x="530" y="105" width="320" height="48" class="box-io"/>
+  <text x="690" y="128" text-anchor="middle" class="txt">Teacher-forcing inputs</text>
+  <text x="690" y="144" text-anchor="middle" class="mono">tgt_in: (batch, tgt_len) e.g. [BOS, y0, ...]</text>
+
+  <line x1="690" y1="153" x2="690" y2="178" class="line-flow"/>
+
+  <rect x="530" y="178" width="320" height="56" class="box-io"/>
+  <text x="690" y="200" text-anchor="middle" class="txt">tgt_embed * sqrt(d_model) + sinusoidal PE + dropout</text>
+  <text x="690" y="218" text-anchor="middle" class="note">mask: tgt_key_padding_mask</text>
+
+  <line x1="690" y1="234" x2="690" y2="258" class="line-flow"/>
+
+  <rect x="515" y="258" width="350" height="248" class="box-dec"/>
+  <text x="690" y="282" text-anchor="middle" class="lbl">DecoderLayer x n_decoder_layers</text>
+  <text x="530" y="304" class="txt">1) Pre-LN, masked self-attention (Q, K, V from decoder x)</text>
+  <text x="542" y="322" class="note">  attn_mask: additive causal (no peek at future tgt)</text>
+  <text x="542" y="338" class="note">  key_padding_mask on target keys</text>
+  <text x="530" y="360" class="txt">2) residual + dropout</text>
+  <text x="530" y="382" class="txt">3) Pre-LN, cross-attention: Q from x, K/V from memory</text>
+  <text x="542" y="398" class="mono">memory</text>
+  <text x="542" y="414" class="note">  memory_key_padding_mask (same as src pad mask)</text>
+  <text x="530" y="434" class="txt">4) residual + dropout</text>
+  <text x="530" y="454" class="txt">5) Pre-LN, FFN, residual + dropout</text>
+
+  <line x1="690" y1="506" x2="690" y2="528" class="line-flow"/>
+
+  <rect x="530" y="528" width="320" height="72" class="box-io"/>
+  <text x="690" y="550" text-anchor="middle" class="txt">decoder_norm (LayerNorm)</text>
+  <text x="690" y="568" text-anchor="middle" class="txt">output_proj: Linear(d_model -&gt; vocab_size)</text>
+  <text x="690" y="586" text-anchor="middle" class="mono">logits: (batch, tgt_len, vocab_size)</text>
+
+  <!-- Bridge: memory to decoder -->
+  <path d="M 390 510 C 430 510, 450 380, 520 360" class="line-bridge"/>
+  <text x="455" y="430" class="note" transform="rotate(-8 455 430)">memory</text>
+
+  <!-- forward() note -->
+  <rect x="120" y="620" width="680" height="88" class="box-io"/>
+  <text x="460" y="644" text-anchor="middle" class="lbl">forward(src, tgt_in)</text>
+  <text x="460" y="664" text-anchor="middle" class="txt">memory = encode(src); decode(tgt_in, memory) with causal mask on tgt self-attn</text>
+  <text x="460" y="684" text-anchor="middle" class="note">Training: seq2seq_cross_entropy_loss(logits, labels, ignore_index=pad_token_id)</text>
+</svg>

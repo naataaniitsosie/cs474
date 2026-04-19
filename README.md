@@ -7,8 +7,13 @@ Encoder–decoder training for legal brief passages → section headings using t
 | Path | Purpose |
 |------|---------|
 | [`src/briefme/`](src/briefme/) | Dataset + metrics + judge helpers (`text` → `reference`). |
-| [`src/transformer/`](src/transformer/) | Scratch model: `config.py` (Phase 1), `attention.py` / `masking.py` / `layers.py` (Phase 2: MHA, encoder/decoder blocks). Not the Hugging Face **`transformers`** package. Layer modules import lazily from `transformer` so `import torch` is not required to use `ScratchTransformerConfig` only. |
-| [`notebooks/`](notebooks/) | EDA and experiments (e.g. `01_briefme_eda.ipynb`). |
+| [`src/transformer/`](src/transformer/) | Scratch seq2seq: Phases 1–2 (`config`, `attention`, `masking`, `layers`); Phase 3 **`positional.py`** (sinusoidal PE), **`model.py`** (`ScratchSeq2SeqTransformer`, teacher-forcing CE helper). Presets: **`ScratchTransformerConfig.tiny()`** (smoke), **`.small()`** (default for real runs), **`.medium()`** (larger optional ablation). Not Hugging Face **`transformers`**. Heavy symbols load lazily from `transformer` so `ScratchTransformerConfig` works without importing `torch`. |
+| [`src/briefme/seq2seq_data.py`](src/briefme/seq2seq_data.py) | **Phase 4:** T5 tokenizer, `BriefMeSeq2SeqDataset`, `collate_seq2seq_batch`, teacher-forcing `tgt_in` / `labels` alignment. |
+| [`src/briefme/generation.py`](src/briefme/generation.py) | **Phase 5:** `greedy_generate` for the scratch model + string decode helpers. |
+| [`src/briefme/train_scratch_loop.py`](src/briefme/train_scratch_loop.py) | Scratch training loop (`ScratchTrainConfig`, `run_scratch_training`) — used by CLI and **`notebooks/04_train_scratch_seq2seq.ipynb`**. |
+| [`src/briefme/train_t5_loop.py`](src/briefme/train_t5_loop.py) | T5 baseline loop (`T5BaselineTrainConfig`, `run_t5_baseline_training`) — used by CLI and **`notebooks/05_train_t5_baseline.ipynb`**. |
+| [`scripts/`](scripts/) | **`train_scratch_seq2seq.py`**; **`train_t5_baseline.py`**. Run with `PYTHONPATH=src` from repo root or after `pip install -e .`. |
+| [`notebooks/`](notebooks/) | EDA (`01`), judge (`02`), metrics (`03`), **scratch training (`04`)**, **T5 baseline (`05`)**. |
 | [`planning/`](planning/) | Course specs and planning docs. |
 
 **Why `src/briefme` and not `src/dataset/briefme`?**  
@@ -66,6 +71,19 @@ python -m pytest
 ```
 
 Tests live under [`tests/`](tests/). Options are configured in [`pyproject.toml`](pyproject.toml) (`[tool.pytest.ini_options]` → `testpaths = ["tests"]`). For verbose output: `python -m pytest -v`; one file: `python -m pytest tests/test_metrics.py`.
+
+### Training (Phases 4–5)
+
+From the repo root with the env activated and Hugging Face access for BriefMe streaming:
+
+```bash
+PYTHONPATH=src python scripts/train_scratch_seq2seq.py --epochs 3 --train-limit 2048 --preset tiny --output-dir runs/scratch_run
+PYTHONPATH=src python scripts/train_t5_baseline.py --epochs 2 --train-limit 4096 --output-dir runs/t5_run
+```
+
+Use `--train-limit none` (or `full` / `all`) to stream the full train split (longer). Checkpoints: scratch `best.pt` under `--output-dir`; T5 uses Hugging Face `Seq2SeqTrainer` saves under `--output-dir`.
+
+Notebook entry points (same training code as the scripts): [`notebooks/04_train_scratch_seq2seq.ipynb`](notebooks/04_train_scratch_seq2seq.ipynb), [`notebooks/05_train_t5_baseline.ipynb`](notebooks/05_train_t5_baseline.ipynb).
 
 ## BriefMe loading note
 

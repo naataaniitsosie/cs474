@@ -40,3 +40,6 @@ artifacts/llm_judge_runs/*.jsonl
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+
+# Cursor
+.cursor/

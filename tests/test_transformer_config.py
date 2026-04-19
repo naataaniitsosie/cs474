@@ -22,6 +22,12 @@ def test_small_preset_valid() -> None:
     assert c.n_encoder_layers == 4
 
 
+def test_medium_preset_valid() -> None:
+    c = ScratchTransformerConfig.medium()
+    assert c.d_model % c.n_heads == 0
+    assert c.n_encoder_layers == 6
+
+
 def test_invalid_d_model_heads_division() -> None:
     with pytest.raises(ValueError, match="divisible"):
         ScratchTransformerConfig(
