@@ -49,3 +49,6 @@ artifacts/inference_runs/
 
 # Runs
 runs/
+
+# MacOS
+.DS_Store

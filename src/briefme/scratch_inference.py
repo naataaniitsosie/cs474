@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import dataclasses
+import sys
+import time
 from pathlib import Path
 from typing import Any
 
@@ -60,8 +62,13 @@ def greedy_predict_headings(
     source_prefix: str,
     batch_size: int = 8,
     max_new_tokens: int | None = None,
+    log_every: int = 0,
+    log_label: str = "infer",
 ) -> list[str]:
-    """Greedy-decode one predicted heading string per example (same order as ``examples``)."""
+    """Greedy-decode one predicted heading string per example (same order as ``examples``).
+
+    If ``log_every`` > 0, prints progress to stderr every ``log_every`` rows (wall-clock and rows/s).
+    """
     pad_id = tokenizer.pad_token_id
     eos_id = tokenizer.eos_token_id
     dec_start = getattr(tokenizer, "decoder_start_token_id", None)
@@ -86,8 +93,14 @@ def greedy_predict_headings(
     loader = DataLoader(ds, batch_size=batch_size, shuffle=False, collate_fn=collate, num_workers=0)
     preds: list[str] = []
     model_dev = next(model.parameters()).device
+    n_total = len(examples)
+    n_done = 0
+    t0 = time.perf_counter()
+    next_milestone = log_every if log_every > 0 else 0
+
     for batch in loader:
         src_b = batch["src"].to(model_dev)
+        bsz = int(src_b.shape[0])
         gen = greedy_generate(
             model,
             src_b,
@@ -97,6 +110,26 @@ def greedy_predict_headings(
         )
         gen = strip_decoder_start(gen, dec_start)
         preds.extend(batch_decode_skip_special(tokenizer, gen))
+        n_done += bsz
+        if log_every > 0:
+            while n_done >= next_milestone <= n_total:
+                elapsed = time.perf_counter() - t0
+                rate = next_milestone / elapsed if elapsed > 0 else 0.0
+                print(
+                    f"[{log_label}] {next_milestone}/{n_total} rows  {elapsed:.1f}s wall  (~{rate:.2f} rows/s)",
+                    file=sys.stderr,
+                    flush=True,
+                )
+                next_milestone += log_every
+
+    if log_every > 0 and n_total > 0:
+        elapsed = time.perf_counter() - t0
+        rate = n_total / elapsed if elapsed > 0 else 0.0
+        print(
+            f"[{log_label}] complete: {n_total} rows in {elapsed:.1f}s wall  (~{rate:.2f} rows/s avg)",
+            file=sys.stderr,
+            flush=True,
+        )
     return preds
 
 
