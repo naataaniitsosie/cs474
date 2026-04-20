@@ -33,12 +33,6 @@ env/
 # Jupyter
 .ipynb_checkpoints/
 
-# Optional LLM judge caches (JSONL runs can grow large)
-artifacts/llm_judge_runs/*.jsonl
-
-# Persisted inference runs for notebook viewer (JSON)
-artifacts/inference_runs/
-
 # Tools (harmless if unused)
 .pytest_cache/
 .mypy_cache/

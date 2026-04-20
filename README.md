@@ -9,7 +9,7 @@ Encoder–decoder training for legal brief passages → section headings using t
 | [`src/briefme/`](src/briefme/) | Dataset + metrics + judge helpers (`text` → `reference`). |
 | [`src/transformer/`](src/transformer/) | Scratch seq2seq: Phases 1–2 (`config`, `attention`, `masking`, `layers`); Phase 3 **`positional.py`** (sinusoidal PE), **`model.py`** (`ScratchSeq2SeqTransformer`, teacher-forcing CE helper). Presets: **`ScratchTransformerConfig.tiny()`** (smoke), **`.small()`** (default for real runs), **`.medium()`** (larger optional ablation). Not Hugging Face **`transformers`**. Heavy symbols load lazily from `transformer` so `ScratchTransformerConfig` works without importing `torch`. |
 | [`src/briefme/seq2seq_data.py`](src/briefme/seq2seq_data.py) | **Phase 4:** T5 tokenizer, `BriefMeSeq2SeqDataset`, `collate_seq2seq_batch`, teacher-forcing `tgt_in` / `labels` alignment. |
-| [`src/briefme/generation.py`](src/briefme/generation.py) | **Phase 5:** `greedy_generate` for the scratch model + string decode helpers. |
+| [`src/briefme/generation.py`](src/briefme/generation.py) | **Phase 5:** `greedy_generate` and `beam_generate` for the scratch model + string decode helpers. |
 | [`src/briefme/train_scratch_loop.py`](src/briefme/train_scratch_loop.py) | Scratch training loop (`ScratchTrainConfig`, `run_scratch_training`) — used by CLI and **`notebooks/04_train_scratch_seq2seq.ipynb`**. |
 | [`src/briefme/train_t5_loop.py`](src/briefme/train_t5_loop.py) | T5 baseline loop (`T5BaselineTrainConfig`, `run_t5_baseline_training`) — used by CLI and **`notebooks/05_train_t5_baseline.ipynb`**. |
 | [`scripts/`](scripts/) | **`train_scratch_seq2seq.py`**; **`train_t5_baseline.py`**. Run with `PYTHONPATH=src` from repo root or after `pip install -e .`. |
