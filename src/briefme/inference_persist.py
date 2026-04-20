@@ -13,9 +13,35 @@ def inference_runs_dir(repo_root: Path) -> Path:
     return repo_root / "artifacts" / "inference_runs"
 
 
-def scratch_inference_json_path(repo_root: Path, *, split_tag: str, label: str) -> Path:
-    """Default JSON path written by inference notebook / read by metrics & judge: ``{split_tag}_scratch_{label}.json``."""
-    return inference_runs_dir(repo_root) / f"{split_tag}_scratch_{label}.json"
+def scratch_runs_artifacts_dir(repo_root: Path, *, artifacts_subdir: str = "inference_runs") -> Path:
+    """Directory under ``artifacts/`` holding ``{split}_scratch_{label}.json`` (greedy, beam, etc.)."""
+    return repo_root / "artifacts" / artifacts_subdir
+
+
+def paired_llm_judge_artifacts_subdir(inference_artifacts_subdir: str) -> str:
+    """Maps ``inference_runs`` → ``llm_judge_runs``, ``inference_runs_beam4`` → ``llm_judge_runs_beam4``, etc."""
+    if not inference_artifacts_subdir.startswith("inference"):
+        return "llm_judge_runs"
+    return "llm_judge" + inference_artifacts_subdir[len("inference") :]
+
+
+def llm_judge_runs_dir(repo_root: Path, *, inference_artifacts_subdir: str = "inference_runs") -> Path:
+    """LLM judge JSONL cache dir paired with :func:`scratch_runs_artifacts_dir` layout."""
+    sub = paired_llm_judge_artifacts_subdir(inference_artifacts_subdir)
+    return repo_root / "artifacts" / sub
+
+
+def scratch_inference_json_path(
+    repo_root: Path,
+    *,
+    split_tag: str,
+    label: str,
+    artifacts_subdir: str = "inference_runs",
+) -> Path:
+    """Path to saved inference JSON (default folder ``inference_runs``; use ``inference_runs_beam4`` for beam)."""
+    return scratch_runs_artifacts_dir(repo_root, artifacts_subdir=artifacts_subdir) / (
+        f"{split_tag}_scratch_{label}.json"
+    )
 
 
 def save_scratch_inference_json(

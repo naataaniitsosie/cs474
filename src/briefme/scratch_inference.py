@@ -1,4 +1,4 @@
-"""Load trained scratch seq2seq checkpoints and greedy-decode headings for evaluation."""
+"""Load trained scratch seq2seq checkpoints and decode headings (greedy or beam) for evaluation."""
 
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ import torch
 from torch.utils.data import DataLoader
 from transformers import PreTrainedTokenizerBase
 
-from briefme.generation import batch_decode_skip_special, greedy_generate, strip_decoder_start
+from briefme.generation import batch_decode_skip_special, beam_generate, greedy_generate, strip_decoder_start
 from briefme.seq2seq_data import BriefMeSeq2SeqDataset, collate_seq2seq_batch, get_t5_tokenizer
 from briefme.train_scratch_loop import pick_device
 from transformer import ScratchSeq2SeqTransformer
@@ -62,10 +62,13 @@ def greedy_predict_headings(
     source_prefix: str,
     batch_size: int = 8,
     max_new_tokens: int | None = None,
+    num_beams: int = 1,
     log_every: int = 0,
     log_label: str = "infer",
 ) -> list[str]:
-    """Greedy-decode one predicted heading string per example (same order as ``examples``).
+    """Decode one predicted heading string per example (same order as ``examples``).
+
+    ``num_beams`` > 1 runs beam search; ``1`` is greedy left-to-right argmax.
 
     If ``log_every`` > 0, prints progress to stderr every ``log_every`` rows (wall-clock and rows/s).
     """
@@ -101,13 +104,23 @@ def greedy_predict_headings(
     for batch in loader:
         src_b = batch["src"].to(model_dev)
         bsz = int(src_b.shape[0])
-        gen = greedy_generate(
-            model,
-            src_b,
-            eos_token_id=eos_id,
-            decoder_start_token_id=dec_start,
-            max_new_tokens=cap,
-        )
+        if num_beams <= 1:
+            gen = greedy_generate(
+                model,
+                src_b,
+                eos_token_id=eos_id,
+                decoder_start_token_id=dec_start,
+                max_new_tokens=cap,
+            )
+        else:
+            gen = beam_generate(
+                model,
+                src_b,
+                eos_token_id=eos_id,
+                decoder_start_token_id=dec_start,
+                max_new_tokens=cap,
+                num_beams=num_beams,
+            )
         gen = strip_decoder_start(gen, dec_start)
         preds.extend(batch_decode_skip_special(tokenizer, gen))
         n_done += bsz

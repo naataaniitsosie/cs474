@@ -6,9 +6,12 @@ from pathlib import Path
 
 from briefme.inference_persist import (
     inference_runs_dir,
+    llm_judge_runs_dir,
     load_inference_json,
+    paired_llm_judge_artifacts_subdir,
     save_scratch_inference_json,
     scratch_inference_json_path,
+    scratch_runs_artifacts_dir,
 )
 
 
@@ -57,3 +60,24 @@ def test_scratch_inference_json_path(tmp_path: Path) -> None:
     p = scratch_inference_json_path(tmp_path, split_tag="dev", label="tiny")
     assert p.name == "dev_scratch_tiny.json"
     assert p.parent == inference_runs_dir(tmp_path)
+
+
+def test_scratch_inference_json_path_beam_subdir(tmp_path: Path) -> None:
+    p = scratch_inference_json_path(
+        tmp_path,
+        split_tag="dev",
+        label="tiny",
+        artifacts_subdir="inference_runs_beam4",
+    )
+    assert p.name == "dev_scratch_tiny.json"
+    assert p.parent == scratch_runs_artifacts_dir(tmp_path, artifacts_subdir="inference_runs_beam4")
+
+
+def test_paired_llm_judge_subdir() -> None:
+    assert paired_llm_judge_artifacts_subdir("inference_runs") == "llm_judge_runs"
+    assert paired_llm_judge_artifacts_subdir("inference_runs_beam4") == "llm_judge_runs_beam4"
+
+
+def test_llm_judge_runs_dir_beam(tmp_path: Path) -> None:
+    d = llm_judge_runs_dir(tmp_path, inference_artifacts_subdir="inference_runs_beam4")
+    assert d == tmp_path / "artifacts" / "llm_judge_runs_beam4"

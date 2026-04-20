@@ -11,6 +11,7 @@ from briefme.data import (
 )
 from briefme.generation import (
     batch_decode_skip_special,
+    beam_generate,
     greedy_generate,
     strip_decoder_start,
 )
@@ -47,6 +48,7 @@ __all__ = [
     "get_t5_tokenizer",
     "materialize_examples",
     "batch_decode_skip_special",
+    "beam_generate",
     "greedy_generate",
     "strip_decoder_start",
     "iter_rows",

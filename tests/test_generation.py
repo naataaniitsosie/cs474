@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import torch
 
-from briefme.generation import greedy_generate, strip_decoder_start
+from briefme.generation import beam_generate, greedy_generate, strip_decoder_start
 from transformer import ScratchSeq2SeqTransformer, ScratchTransformerConfig
 
 
@@ -26,6 +26,61 @@ def test_greedy_generate_shapes_and_includes_start_token() -> None:
         eos_token_id=eos_id,
         decoder_start_token_id=dec_start,
         max_new_tokens=15,
+    )
+    assert out.shape[0] == b
+    assert out.shape[1] >= 2
+    assert torch.all(out[:, 0] == dec_start)
+
+
+def test_beam_generate_matches_greedy_when_one_beam() -> None:
+    cfg = ScratchTransformerConfig.tiny()
+    pad_id = 0
+    eos_id = 1
+    vocab = max(32, eos_id + 2)
+    model = ScratchSeq2SeqTransformer(cfg, vocab_size=vocab, pad_token_id=pad_id)
+    model.eval()
+
+    b, src_len = 2, 10
+    src = torch.randint(2, vocab, (b, src_len))
+    dec_start = pad_id
+
+    g = greedy_generate(
+        model,
+        src,
+        eos_token_id=eos_id,
+        decoder_start_token_id=dec_start,
+        max_new_tokens=15,
+    )
+    bm = beam_generate(
+        model,
+        src,
+        eos_token_id=eos_id,
+        decoder_start_token_id=dec_start,
+        max_new_tokens=15,
+        num_beams=1,
+    )
+    assert torch.equal(g, bm)
+
+
+def test_beam_generate_multi_beam_shape() -> None:
+    cfg = ScratchTransformerConfig.tiny()
+    pad_id = 0
+    eos_id = 1
+    vocab = max(32, eos_id + 2)
+    model = ScratchSeq2SeqTransformer(cfg, vocab_size=vocab, pad_token_id=pad_id)
+    model.eval()
+
+    b, src_len = 3, 8
+    src = torch.randint(2, vocab, (b, src_len))
+    dec_start = pad_id
+
+    out = beam_generate(
+        model,
+        src,
+        eos_token_id=eos_id,
+        decoder_start_token_id=dec_start,
+        max_new_tokens=12,
+        num_beams=4,
     )
     assert out.shape[0] == b
     assert out.shape[1] >= 2
