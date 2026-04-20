@@ -13,7 +13,7 @@ Encoder–decoder training for legal brief passages → section headings using t
 | [`src/briefme/train_scratch_loop.py`](src/briefme/train_scratch_loop.py) | Scratch training loop (`ScratchTrainConfig`, `run_scratch_training`) — used by CLI and **`notebooks/04_train_scratch_seq2seq.ipynb`**. |
 | [`src/briefme/train_t5_loop.py`](src/briefme/train_t5_loop.py) | T5 baseline loop (`T5BaselineTrainConfig`, `run_t5_baseline_training`) — used by CLI and **`notebooks/05_train_t5_baseline.ipynb`**. |
 | [`scripts/`](scripts/) | **`train_scratch_seq2seq.py`**; **`train_t5_baseline.py`**. Run with `PYTHONPATH=src` from repo root or after `pip install -e .`. |
-| [`notebooks/`](notebooks/) | EDA (`01`), judge (`02`), metrics (`03`), **scratch training (`04`)**, **T5 baseline (`05`)**. |
+| [`notebooks/`](notebooks/) | EDA (`01`), scratch train (`04`), T5 baseline (`05`), inference runs (`06`), **metrics browser (`07`)**, **LLM judge (`08`)**. |
 | [`planning/`](planning/) | Course specs and planning docs. |
 
 **Why `src/briefme` and not `src/dataset/briefme`?**  
